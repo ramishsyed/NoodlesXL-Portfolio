@@ -664,47 +664,173 @@
             </div>
         </div>
     </div>
-    <script>
-        // [Keep all your existing clock and lightbox functions]
+<script>
+// Update clock with real time
+function updateClock() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    
+    document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+
+// Image lightbox function
+function openImageWindow(imageUrl, title) {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    const imageWindow = document.createElement('div');
+    imageWindow.style.cssText = `
+        background: linear-gradient(180deg, #ffffff 0%, #f5fbff 100%);
+        border: 1px solid #0066cc;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        max-width: 90%;
+        max-height: 90%;
+        display: flex;
+        flex-direction: column;
+    `;
+    
+    const titleBar = document.createElement('div');
+    titleBar.style.cssText = `
+        background: linear-gradient(180deg, #0997ff 0%, #0066cc 100%);
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 8px 8px 0 0;
+        cursor: move;
+    `;
+    titleBar.innerHTML = `
+        <div style="color: white; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 1.1em;">🖼️</span>
+            <span>${title}</span>
+        </div>
+        <div style="display: flex; gap: 4px;">
+            <div class="lightbox-close" style="width: 22px; height: 22px; background: linear-gradient(180deg, #ff5555 0%, #cc0000 100%); border: 1px solid #0066cc; border-radius: 3px; cursor: pointer; font-size: 0.9em; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">×</div>
+        </div>
+    `;
+    
+    const imageContainer = document.createElement('div');
+    imageContainer.style.cssText = `
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        max-height: 80vh;
+        overflow: auto;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.style.cssText = `
+        max-width: 100%;
+        max-height: 70vh;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    `;
+    
+    imageContainer.appendChild(img);
+    imageWindow.appendChild(titleBar);
+    imageWindow.appendChild(imageContainer);
+    overlay.appendChild(imageWindow);
+    document.body.appendChild(overlay);
+    
+    const closeBtn = titleBar.querySelector('.lightbox-close');
+    closeBtn.onclick = () => overlay.remove();
+    overlay.onclick = (e) => {
+        if (e.target === overlay) overlay.remove();
+    };
+}
+
+// Auto-load images from GitHub API
+async function loadArtGallery() {
+    const gallery = document.getElementById('art-gallery');
+    
+    const owner = 'ramishsyed';
+    const repo = 'NoodlesXL-Portfolio';
+    const folder = '3d-art';
+    
+    try {
+        const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`);
         
-        // Auto-load from GitHub API
-        async function loadArtGallery() {
-            const gallery = document.getElementById('art-gallery');
-            
-            const owner = 'ramishsyed';
-            const repo = 'PortfolioImages';
-            const folder = '3d-art';
-            
-            try {
-                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${folder}`);
-                const files = await response.json();
-                
-                const images = files.filter(f => 
-                    f.type === 'file' && 
-                    /\.(png|jpg|jpeg|gif|webp)$/i.test(f.name)
-                );
-                
-                gallery.innerHTML = '';
-                
-                images.forEach(file => {
-                    const title = file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ');
-                    const imageUrl = file.download_url;
-                    
-                    const item = document.createElement('div');
-                    item.className = 'gallery-vertical-item';
-                    item.innerHTML = `
-                        <img src="${imageUrl}" alt="${title}">
-                        <h3>${title}</h3>
-                    `;
-                    item.onclick = () => openImageWindow(imageUrl, title);
-                    gallery.appendChild(item);
-                });
-            } catch (error) {
-                console.error('Error:', error);
-            }
+        if (!response.ok) {
+            throw new Error(`GitHub API error: ${response.status}`);
         }
         
-        loadArtGallery();
-        </script>
+        const files = await response.json();
+        
+        const imageExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
+        const images = files.filter(file => 
+            file.type === 'file' && 
+            imageExtensions.some(ext => file.name.toLowerCase().endsWith(ext))
+        );
+        
+        gallery.innerHTML = '';
+        
+        if (images.length === 0) {
+            gallery.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #0066a8;">
+                    <h3>No images found!</h3>
+                    <p style="margin-top: 10px;">Upload images to the <strong>3d-art/</strong> folder in your GitHub repo</p>
+                </div>
+            `;
+            return;
+        }
+        
+        images.forEach(file => {
+            const title = file.name
+                .replace(/\.[^.]+$/, '')
+                .replace(/[_-]/g, ' ')
+                .replace(/\d+/g, '')
+                .trim() || file.name;
+            
+            const imageUrl = file.download_url;
+            
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-vertical-item';
+            
+            galleryItem.innerHTML = `
+                <img src="${imageUrl}" alt="${title}" onerror="this.parentElement.style.display='none'">
+                <h3>${title.charAt(0).toUpperCase() + title.slice(1)}</h3>
+            `;
+            
+            galleryItem.onclick = () => openImageWindow(imageUrl, title);
+            gallery.appendChild(galleryItem);
+        });
+        
+        console.log(`Loaded ${images.length} images from GitHub`);
+        
+    } catch (error) {
+        console.error('Error loading images:', error);
+        gallery.innerHTML = `
+            <div style="text-align: center; padding: 40px; color: #cc0000;">
+                <h3>Error loading images</h3>
+                <p style="margin-top: 10px;">Could not fetch images from GitHub</p>
+                <p style="margin-top: 5px; font-size: 0.85em;">Error: ${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+loadArtGallery();
+</script>
 </body>
 </html>
