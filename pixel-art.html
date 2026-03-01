@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pixel Art - NoodlesXL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background: #5db3e8;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Desktop */
+        .desktop {
+            width: 100%;
+            height: 100vh;
+            background: #5db3e8;
+            background: linear-gradient(135deg, #89d4f7 0%, #5db3e8 50%, #3ea0db 100%);
+            position: relative;
+            padding-bottom: 40px;
+        }
+
+        /* Desktop orbs */
+        .desktop::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: calc(100% - 40px);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.2) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        /* Taskbar */
+        .taskbar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            background: linear-gradient(180deg, #245edb 0%, #1941a5 100%);
+            border-top: 2px solid #4488ff;
+            display: flex;
+            align-items: center;
+            padding: 0 4px;
+            gap: 4px;
+            box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+        }
+
+        /* Start Button */
+        .start-button {
+            height: 32px;
+            padding: 0 12px;
+            background: linear-gradient(180deg, #6dcc6d 0%, #339933 100%);
+            border: 1px outset #5ab95a;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.4);
+            cursor: default;
+        }
+
+        .start-button::before {
+            content: '';
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 50%, #ff6b6b 100%);
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.3);
+        }
+
+        /* Window Button in Taskbar */
+        .taskbar-window-button {
+            height: 32px;
+            padding: 0 12px;
+            background: linear-gradient(180deg, #3a7de8 0%, #2560c7 100%);
+            border: 1px solid #1a4d9e;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 
+                inset 0 1px 4px rgba(0, 0, 0, 0.3),
+                inset 0 -1px 0 rgba(255, 255, 255, 0.1);
+            cursor: default;
+            border-style: inset;
+        }
+
+        .taskbar-window-button::before {
+            content: '🎨';
+            font-size: 1em;
+        }
+
+        /* System Tray */
+        .system-tray {
+            margin-left: auto;
+            height: 32px;
+            background: linear-gradient(180deg, #1e5bc6 0%, #163f8f 100%);
+            border: 1px inset #2a6dd9;
+            border-radius: 2px;
+            padding: 0 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .clock {
+            color: white;
+            font-size: 0.85em;
+            font-weight: normal;
+        }
+
+        /* Start Menu - XP Style */
+        .start-menu {
+            position: fixed;
+            bottom: 42px;
+            left: 4px;
+            width: 400px;
+            background: white;
+            border: 3px solid;
+            border-color: #0054e3 #003caa #003caa #0054e3;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .start-menu-top {
+            display: flex;
+            height: auto;
+        }
+
+        /* Left panel (user info) */
+        .start-menu-user {
+            width: 50px;
+            background: linear-gradient(180deg, #5291ff 0%, #2864dc 100%);
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border-radius: 6px 0 0 0;
+        }
+
+        .user-icon {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            margin-bottom: 8px;
+        }
+
+        .user-name {
+            color: white;
+            font-size: 0.75em;
+            font-weight: bold;
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            text-align: center;
+        }
+
+        /* Right panel (menu items) */
+        .start-menu-items {
+            flex: 1;
+            background: white;
+        }
+
+        /* Pinned items section */
+        .pinned-items {
+            padding: 8px 4px;
+            background: white;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 2px;
+            cursor: default;
+            transition: background 0.1s;
+        }
+
+        .menu-item:hover {
+            background: linear-gradient(180deg, #5291ff 0%, #3a7de8 100%);
+            color: white;
+        }
+
+        .menu-item-icon {
+            width: 32px;
+            height: 32px;
+            margin-right: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+        }
+
+        .menu-item-text {
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        /* Separator */
+        .menu-separator {
+            height: 6px;
+            background: linear-gradient(180deg, #c3d9ff 0%, #8bb7ff 100%);
+            margin: 4px 0;
+            position: relative;
+        }
+
+        .menu-separator::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #fff;
+        }
+
+        .menu-separator::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #6699ff;
+        }
+
+        /* All Programs section */
+        .all-programs {
+            padding: 4px;
+            background: #d3e5fa;
+        }
+
+        .all-programs-item {
+            display: flex;
+            align-items: center;
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 2px;
+            cursor: default;
+            background: #d3e5fa;
+            transition: background 0.1s;
+        }
+
+        .all-programs-item:hover {
+            background: linear-gradient(180deg, #5291ff 0%, #3a7de8 100%);
+            color: white;
+        }
+
+        .all-programs-arrow {
+            margin-left: auto;
+            font-size: 1.2em;
+            color: #5a9f5a;
+        }
+
+        /* Bottom bar (Shut Down, etc.) */
+        .start-menu-bottom {
+            display: flex;
+            background: #3d7ce8;
+            border-top: 1px solid #5a9fff;
+        }
+
+        .bottom-button {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 8px;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+            cursor: default;
+            transition: background 0.1s;
+            border-right: 1px solid #5a9fff;
+        }
+
+        .bottom-button:last-child {
+            border-right: none;
+        }
+
+        .bottom-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .bottom-button-icon {
+            font-size: 1.2em;
+        }
+
+        /* Window */
+        .window {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 900px;
+            max-height: calc(85vh - 40px);
+            background: linear-gradient(180deg, #ffffff 0%, #f5fbff 100%);
+            border: 1px solid #0066cc;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Window Title Bar */
+        .window-titlebar {
+            background: linear-gradient(180deg, #0997ff 0%, #0066cc 100%);
+            padding: 4px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .window-title {
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .window-title::before {
+            content: '🎨';
+            font-size: 1.1em;
+        }
+
+        .window-controls {
+            display: flex;
+            gap: 4px;
+        }
+
+        .window-button {
+            width: 22px;
+            height: 22px;
+            background: linear-gradient(180deg, #ffffff 0%, #c8e8ff 100%);
+            border: 1px solid #0066cc;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .window-button:hover {
+            background: linear-gradient(180deg, #dbf1ff 0%, #a8d8f5 100%);
+        }
+
+        .window-button.close {
+            background: linear-gradient(180deg, #ff5555 0%, #cc0000 100%);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Window Content */
+        .window-content {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        /* Header inside window */
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #c8e8ff;
+        }
+
+        .header img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 0 auto 10px auto;
+            border-radius: 8px;
+        }
+
+        /* Navigation */
+        nav {
+            background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 100%);
+            border: 1px solid #7ab8db;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            padding: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        nav li {
+            display: inline-block;
+        }
+
+        nav a {
+            color: #003d5c;
+            text-decoration: none;
+            padding: 5px 12px;
+            display: block;
+            background: linear-gradient(180deg, #ffffff 0%, #c8e8ff 50%, #87ceeb 100%);
+            border: 1px solid #5ba3d0;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.85em;
+            transition: all 0.15s ease;
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        }
+
+        nav a:hover {
+            background: linear-gradient(180deg, #ffffff 0%, #dbf1ff 50%, #a8d8f5 100%);
+            border-color: #3a95c9;
+        }
+
+        nav a:active {
+            background: linear-gradient(180deg, #87ceeb 0%, #c8e8ff 100%);
+            box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Content */
+        .content h1 {
+            color: #0066a8;
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            font-weight: 600;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #c8e8ff;
+        }
+
+        .content h2 {
+            color: #0078d7;
+            font-size: 1.2em;
+            margin: 15px 0 8px 0;
+            font-weight: 600;
+        }
+
+        .content p {
+            line-height: 1.5;
+            margin-bottom: 12px;
+            color: #003d5c;
+            font-size: 0.9em;
+        }
+
+        /* Gallery - Responsive grid */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .gallery-item {
+            background: linear-gradient(180deg, #ffffff 0%, #e8f4fc 100%);
+            border: 1px solid #7ab8db;
+            border-radius: 6px;
+            padding: 8px;
+            text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 120, 215, 0.25);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #c8e8ff 0%, #87ceeb 100%);
+        }
+
+        .gallery-placeholder {
+            background: linear-gradient(135deg, #c8e8ff 0%, #87ceeb 100%);
+            border: 2px dashed #5ba3d0;
+            border-radius: 4px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 6px;
+            color: #0066a8;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+
+        .gallery-item h3 {
+            color: #0078d7;
+            font-size: 0.85em;
+            margin-top: 4px;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .divider {
+            border: none;
+            border-top: 1px solid #c8e8ff;
+            border-bottom: 1px solid #ffffff;
+            margin: 12px 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .window {
+                width: 95%;
+            }
+
+            .start-menu {
+                width: 320px;
+            }
+
+            nav ul {
+                flex-direction: column;
+            }
+
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Desktop -->
+    <div class="desktop">
+        <!-- Start Menu - XP Style -->
+<div class="start-menu">
+    <div class="start-menu-top">
+        <div class="start-menu-user">
+            <div class="user-icon">👤</div>
+            <div class="user-name">NoodlesXL</div>
+        </div>
+        <div class="start-menu-items">
+            <div class="pinned-items">
+                <div class="menu-item">
+                    <div class="menu-item-icon">📌</div>
+                    <div class="menu-item-text">Pixel art and 3D commissions open on VGen!</div>
+                </div>
+            </div>
+            
+            <div class="menu-separator"></div>
+            
+            <div class="all-programs">
+                <div class="all-programs-item">
+                    <div class="menu-item-icon">🔗</div>
+                    <div class="menu-item-text">Social Links</div>
+                    <div class="all-programs-arrow">►</div>
+                </div>
+                <div style="padding-left: 40px; font-size: 0.8em;">
+                    <a href="https://www.instagram.com/noodles_xl/" target="_blank" style="text-decoration: none; color: inherit;">
+                        <div class="menu-item" style="padding: 2px 8px;">Instagram</div>
+                    </a>
+                    <a href="https://bsky.app/profile/noodlesxl.bsky.social" target="_blank" style="text-decoration: none; color: inherit;">
+                        <div class="menu-item" style="padding: 2px 8px;">Bluesky</div>
+                    </a>
+                    <a href="https://www.twitch.tv/noodlesxl" target="_blank" style="text-decoration: none; color: inherit;">
+                        <div class="menu-item" style="padding: 2px 8px;">Twitch</div>
+                    </a>
+                    <a href="https://www.youtube.com/@NoodlesXL" target="_blank" style="text-decoration: none; color: inherit;">
+                        <div class="menu-item" style="padding: 2px 8px;">Youtube</div>
+                    </a>
+                    <a href="https://noodler.itch.io/" target="_blank" style="text-decoration: none; color: inherit;">
+                        <div class="menu-item" style="padding: 2px 8px;">itch.io</div>
+                    </a>
+                    <a href="https://vgen.co/r_ramenoodles" target="_blank" style="text-decoration: none; color: inherit;">
+                        <div class="menu-item" style="padding: 2px 8px;">VGen</div>
+                    </a>
+                </div>
+                
+                <div class="all-programs-item" style="margin-top: 8px;">
+                    <div class="menu-item-icon">📂</div>
+                    <div class="menu-item-text">Extra</div>
+                    <div class="all-programs-arrow">►</div>
+                </div>
+                <div style="padding-left: 40px; font-size: 0.8em;">
+                    <a href="guestbook.html" style="text-decoration: none; color: inherit;">
+                        <div class="menu-item" style="padding: 2px 8px;">Guestbook</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="start-menu-bottom">
+        <div class="bottom-button">
+            <div class="bottom-button-icon">🔒</div>
+            <div>Log Off</div>
+        </div>
+        <div class="bottom-button">
+            <div class="bottom-button-icon">⏻</div>
+            <div>Shut Down</div>
+        </div>
+    </div>
+</div>
+
+        <!-- Window -->
+        <div class="window">
+            <div class="window-titlebar">
+                <div class="window-title">Pixel Art - NoodlesXL</div>
+                <div class="window-controls">
+                    <div class="window-button">_</div>
+                    <div class="window-button">□</div>
+                    <div class="window-button close">×</div>
+                </div>
+            </div>
+
+            <div class="window-content">
+                <header class="header">
+                    <img src="https://noodlesxl.neocities.org/header1.png" alt="Header Banner">
+                </header>
+
+                <nav>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="pixel-art.html">Pixel Art</a></li>
+                        <li><a href="3d-art.html">3D Art</a></li>
+                        <li><a href="game-dev.html">Game Dev</a></li>
+                        <li><a href="commissions.html">Commissions</a></li>
+                    </ul>
+                </nav>
+
+                <main class="content">
+                    <h1>Pixel Art Gallery</h1>
+                    
+                    <p>
+                        Here's my pixel art work! All pieces are created in Aseprite. Click any image to view full size.
+                    </p>
+
+                    <hr class="divider">
+                    
+                    <div class="gallery" id="pixelart-gallery">
+                        <!-- Loading placeholder -->
+                        <div class="gallery-item">
+                            <div class="gallery-placeholder">Loading...</div>
+                            <h3>Loading</h3>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </div>
+
+        <!-- Taskbar -->
+        <div class="taskbar">
+            <div class="start-button">start</div>
+            <div class="taskbar-window-button">Pixel Art - NoodlesXL</div>
+            <div class="system-tray">
+                <div class="clock" id="clock">12:00 PM</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+// Update clock with real time
+function updateClock() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12 || 12;
+    
+    document.getElementById('clock').textContent = `${hours}:${minutes} ${ampm}`;
+}
+
+updateClock();
+setInterval(updateClock, 1000);
+
+// Image lightbox function
+function openImageWindow(imageUrl, postUrl, caption) {
+    const overlay = document.createElement('div');
+    overlay.id = 'image-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 3000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    const imageWindow = document.createElement('div');
+    imageWindow.style.cssText = `
+        background: linear-gradient(180deg, #ffffff 0%, #f5fbff 100%);
+        border: 1px solid #0066cc;
+        border-radius: 8px 8px 0 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+        max-width: 90%;
+        max-height: 90%;
+        display: flex;
+        flex-direction: column;
+    `;
+    
+    const titleBar = document.createElement('div');
+    titleBar.style.cssText = `
+        background: linear-gradient(180deg, #0997ff 0%, #0066cc 100%);
+        padding: 4px 8px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 8px 8px 0 0;
+        cursor: move;
+    `;
+    titleBar.innerHTML = `
+        <div style="color: white; font-weight: bold; font-size: 0.9em; display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 1.1em;">🖼️</span>
+            <span>Image Viewer</span>
+        </div>
+        <div style="display: flex; gap: 4px;">
+            <div class="lightbox-close" style="width: 22px; height: 22px; background: linear-gradient(180deg, #ff5555 0%, #cc0000 100%); border: 1px solid #0066cc; border-radius: 3px; cursor: pointer; font-size: 0.9em; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold;">×</div>
+        </div>
+    `;
+    
+    const imageContainer = document.createElement('div');
+    imageContainer.style.cssText = `
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        max-height: 70vh;
+        overflow: auto;
+    `;
+    
+    const img = document.createElement('img');
+    img.src = imageUrl.replace('/thumbnail', '/fullsize');
+    img.style.cssText = `
+        max-width: 100%;
+        max-height: 60vh;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        image-rendering: pixelated;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: crisp-edges;
+    `;
+    
+    const captionDiv = document.createElement('div');
+    captionDiv.style.cssText = `
+        color: #003d5c;
+        font-size: 0.9em;
+        text-align: center;
+        max-width: 500px;
+    `;
+    captionDiv.textContent = caption || '';
+    
+    const linkButton = document.createElement('a');
+    linkButton.href = postUrl;
+    linkButton.target = '_blank';
+    linkButton.style.cssText = `
+        padding: 6px 16px;
+        background: linear-gradient(180deg, #ffffff 0%, #c8e8ff 50%, #87ceeb 100%);
+        border: 1px solid #5ba3d0;
+        border-radius: 4px;
+        color: #003d5c;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.85em;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+        transition: all 0.15s ease;
+    `;
+    linkButton.textContent = 'View on Bluesky';
+    
+    linkButton.onmouseover = function() {
+        this.style.background = 'linear-gradient(180deg, #ffffff 0%, #dbf1ff 50%, #a8d8f5 100%)';
+    };
+    linkButton.onmouseout = function() {
+        this.style.background = 'linear-gradient(180deg, #ffffff 0%, #c8e8ff 50%, #87ceeb 100%)';
+    };
+    
+    imageContainer.appendChild(img);
+    if (caption) imageContainer.appendChild(captionDiv);
+    imageContainer.appendChild(linkButton);
+    
+    imageWindow.appendChild(titleBar);
+    imageWindow.appendChild(imageContainer);
+    overlay.appendChild(imageWindow);
+    document.body.appendChild(overlay);
+    
+    const closeBtn = titleBar.querySelector('.lightbox-close');
+    closeBtn.onclick = () => overlay.remove();
+    overlay.onclick = (e) => {
+        if (e.target === overlay) overlay.remove();
+    };
+    
+    let isDragging = false;
+    let currentX, currentY, initialX, initialY;
+    
+    titleBar.onmousedown = (e) => {
+        if (e.target === closeBtn) return;
+        isDragging = true;
+        initialX = e.clientX - imageWindow.offsetLeft;
+        initialY = e.clientY - imageWindow.offsetTop;
+    };
+    
+    document.onmousemove = (e) => {
+        if (isDragging) {
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+            imageWindow.style.position = 'absolute';
+            imageWindow.style.left = currentX + 'px';
+            imageWindow.style.top = currentY + 'px';
+        }
+    };
+    
+    document.onmouseup = () => {
+        isDragging = false;
+    };
+}
+
+// Load Bluesky posts with #pixelart tag - WITH PAGINATION AND DATE FILTER
+async function loadPixelArtPosts() {
+    const handle = 'noodlesxl.bsky.social';
+    
+    try {
+        const profileResponse = await fetch(`https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile?actor=${handle}`);
+        const profileData = await profileResponse.json();
+        const did = profileData.did;
+        
+        const gallery = document.getElementById('pixelart-gallery');
+        gallery.innerHTML = '<div class="gallery-item"><div class="gallery-placeholder">Loading...</div><h3>Please wait</h3></div>';
+        
+        // Calculate date 2 years ago
+        const twoYearsAgo = new Date();
+        twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+        
+        let allPixelArtPosts = [];
+        let cursor = null;
+        let hasMore = true;
+        let pageCount = 0;
+        const maxPages = 10;
+        
+        while (hasMore && pageCount < maxPages) {
+            const url = cursor 
+                ? `https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${did}&limit=100&cursor=${cursor}`
+                : `https://public.api.bsky.app/xrpc/app.bsky.feed.getAuthorFeed?actor=${did}&limit=100`;
+            
+            const postsResponse = await fetch(url);
+            const postsData = await postsResponse.json();
+            
+            // Filter for pixel art posts from this batch
+            const pixelArtBatch = postsData.feed.filter(item => {
+                const post = item.post;
+                
+                // Check date - parse the indexedAt timestamp
+                const postDate = new Date(post.indexedAt);
+                const isRecent = postDate >= twoYearsAgo;
+                
+                const hasImage = post.embed && post.embed.images && post.embed.images.length > 0;
+                const isYourPost = post.author.did === did;
+                const hasPixelArtTag = post.record.text && 
+                    (post.record.text.toLowerCase().includes('#pixelart') || 
+                     post.record.text.toLowerCase().includes('#pixel art'));
+                
+                // Check if image URL is valid (not broken)
+                const hasValidImage = hasImage && post.embed.images[0].thumb;
+                
+                return hasValidImage && isYourPost && hasPixelArtTag && isRecent;
+            });
+            
+            allPixelArtPosts = allPixelArtPosts.concat(pixelArtBatch);
+            
+            // Check if we've gone past the 2-year mark
+            if (postsData.feed.length > 0) {
+                const oldestPostDate = new Date(postsData.feed[postsData.feed.length - 1].post.indexedAt);
+                if (oldestPostDate < twoYearsAgo) {
+                    // We've reached posts older than 2 years, stop fetching
+                    hasMore = false;
+                }
+            }
+            
+            cursor = postsData.cursor;
+            hasMore = hasMore && cursor && postsData.feed.length === 100;
+            pageCount++;
+            
+            // Update loading message
+            gallery.innerHTML = `<div class="gallery-item"><div class="gallery-placeholder">Loading... (${allPixelArtPosts.length} found)</div><h3>Please wait</h3></div>`;
+        }
+        
+        // Now display all the posts we found
+        gallery.innerHTML = '';
+        
+        if (allPixelArtPosts.length === 0) {
+            gallery.innerHTML = '<div class="gallery-item"><div class="gallery-placeholder">No pixel art posts found in the last 2 years!</div><h3>Coming Soon</h3></div>';
+            return;
+        }
+        
+        allPixelArtPosts.forEach(item => {
+            const post = item.post;
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            
+            const imageUrl = post.embed.images[0].fullsize || post.embed.images[0].thumb;
+            const postUrl = `https://bsky.app/profile/${handle}/post/${post.uri.split('/').pop()}`;
+            const caption = post.record.text || '';
+            
+            galleryItem.innerHTML = `
+                <img src="${post.embed.images[0].thumb}" style="image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges;" onerror="this.parentElement.parentElement.style.display='none'">
+                <h3>${caption ? caption.substring(0, 40).replace(/#pixelart/gi, '').trim() + '...' : 'Pixel Art'}</h3>
+            `;
+            
+            galleryItem.onclick = () => openImageWindow(imageUrl, postUrl, caption);
+            
+            gallery.appendChild(galleryItem);
+        });
+        
+        console.log(`Loaded ${allPixelArtPosts.length} pixel art posts from the last 2 years across ${pageCount} pages`);
+        
+    } catch (error) {
+        console.error('Error loading pixel art posts:', error);
+        const gallery = document.getElementById('pixelart-gallery');
+        gallery.innerHTML = '<div class="gallery-item"><div class="gallery-placeholder">Error loading posts</div><h3>Please refresh</h3></div>';
+    }
+}
+
+loadPixelArtPosts();
+    </script>
+</body>
+</html>
